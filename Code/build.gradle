@@ -1,0 +1,27 @@
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.8'
+}
+
+group 'pl.pw'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.11.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.0'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.11.0'
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: '2.11.0'
+
+}
+
+mainClassName = 'HelloFX'
+
+javafx {
+    version = "13"
+    modules = [ 'javafx.controls', 'javafx.graphics', 'javafx.fxml' ]
+}
