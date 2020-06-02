@@ -19,7 +19,7 @@ dependencies {
 
 }
 
-mainClassName = 'HelloFX'
+mainClassName = 'controlers.SetupController'
 
 javafx {
     version = "13"
