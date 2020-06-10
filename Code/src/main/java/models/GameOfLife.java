@@ -139,23 +139,13 @@ public class GameOfLife extends CellularAutomaton<GameOfLife.CellStates> {
     protected CellStates[] generateNextGeneration() {
         var newGeneration = new CellStates[getCellCount()];
 
-        var cpuThreads = Runtime.getRuntime().availableProcessors();
-        int chunkSize = getCellCount() / cpuThreads;
-        var chunkSizes = new int[cpuThreads];
-        Arrays.fill(chunkSizes, chunkSize);
-        var rest = getCellCount() % cpuThreads;
-        for (int i = 0; i < rest; i++) {
-            chunkSizes[i]++;
-        }
-
-        var threads = new ArrayList<Thread>(cpuThreads);
-        for (int i = 0, from = 0; i < cpuThreads; i++) {
-            int to = from + chunkSizes[i];
-            var thread = new Thread(new NextStateOfCellRangeRunnable(from, to ,newGeneration));
+        var threads = new ArrayList<Thread>();
+        var chunkSize = 200;
+        for (int i = 0; i < getCellCount(); i+=chunkSize) {
+            int to = i + chunkSize <= getCellCount() ? i + chunkSize : getCellCount();
+            var thread = new Thread( new NextStateOfCellRangeRunnable(i, to, newGeneration));
             thread.start();
             threads.add(thread);
-
-            from = to;
         }
 
         try {
@@ -166,24 +156,6 @@ public class GameOfLife extends CellularAutomaton<GameOfLife.CellStates> {
             System.out.println("Calculations failed");
             return cells;
         }
-
-//        var tasks = new ArrayList<NextStateOfCellRangeCallable>(cpuThreads);
-//        for (int i = 0, from = 0; i < cpuThreads; i++) {
-//            int to = from + chunkSizes[i];
-//            tasks.add(new NextStateOfCellRangeCallable(from, to, newGeneration));
-//
-//            from = to;
-//        }
-//
-//        try {
-//            var executor = MyThreadPool.getExecutor();
-//            executor.invokeAll(tasks);
-//
-//            return newGeneration;
-//        } catch (InterruptedException e) {
-//            System.out.println("Calculations failed");
-//            return cells;
-//        }
     }
 
     @Override

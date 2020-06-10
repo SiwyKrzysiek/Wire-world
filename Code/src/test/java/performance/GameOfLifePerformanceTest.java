@@ -12,10 +12,10 @@ public class GameOfLifePerformanceTest {
     final static int WIDTH = 1000;
     final static int HEIGHT = 1000;
     final static int GENERATIONS = 50;
-    final static int DATA_SAMPLE_SIZE = 50;
+    final static int DATA_SAMPLE_SIZE = 10;
 
     public static void main(String[] args) throws IOException {
-        var resultsFile = "Parallel_Thread_One_For_Each_Thread_of_life_performance.txt";
+        var resultsFile = "Parallel_Thread_fix_chunk_200_game_of_life_performance.txt";
 
         var results = new ArrayList<Long>(DATA_SAMPLE_SIZE);
         for (int i = 0; i < DATA_SAMPLE_SIZE; i++) {
