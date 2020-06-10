@@ -202,7 +202,19 @@ Zestawienie średnich czasów obliczeń uzyskanych dla różnych podejść.
 
 \section{Wnioski}
 
+Zastosowanie obliczeń równoległych pozwala na uzyskanie znacznego przyśpieszenia jednak wymaga odpowiedniej realizacji. Przy zastosowaniu nieodpowiedniego podejścia czas wykonania może zostać znacząco wydłużony. Przykładem może być podejście z zachowaniem maksymalnej ziarnistości, które wypadło najgorzej. Prawdopodobnie duże opóźnienie stanowi wtedy tworzenie oraz obsługa tak ogromnej liczby klas \texttt{Future}.
 
+Równie słaby wynik dało podejście z zastosowaniem wątków o stałej wielkości zadania. Ponieważ wielkość zdania była mała w stosunku do wielkości problemu powstało bardzo dużo wątków. Prawdopodobnie spory narzut stanowiło wywłaszczanie wątków i przełączanie między nimi.
+
+Podejście z ilością obiektów \texttt{Future} równą liczbie rdzeni wypadło trochę gorzej niż dla liczby wątków równej liczbie rdzeni. Świadczy to o narzutach płynących z abstrakcji stosowanych w \textit{Concurrency API}.
+
+Najlepszym rozwiązaniem okazało się zastosowanie obiektów \texttt{Future} ze stałą wielkością zadania. W przeciwieństwie do analogicznego schematu z wątkami dla \texttt{Future} nie powstała nadmiarowa liczba wątków procesora. Takie podejście prawdopodobnie pozwoliło zniwelować opóznienie płynące z różnego tępa pracy poszczególnych rdzenie dzięki rozłożeniu pracy metodą przypominającą technikę \textit{load balancing}.
+
+\vspace{5mm}
+
+\textit{Concurrency API} pozwala na łatwe zarządzanie grupą wątków. Wymaga jednak zaplanowania sposobu korzystania z \texttt{ExecutorServices}. Dzięki dodatkowej warstwie abstrakcji praca w tym schemacie jest przyjemna. Jednak takie podejście uniemożliwia zastosowania zaawansowanych technik programowania równoległego.
+
+\vspace{5mm}
 
 Zastosowanie testów jednostkowych w projekcie znacznie ułatwiła wprowadzane zmian w kodzie. Dzięki ich obecności wykrycie błędów oraz sprawdzenie czy symulacja jest wykonywana poprawnie było szybkie. Pozwoliło to na swobodne testowanie różnych rozwiązań.
 
