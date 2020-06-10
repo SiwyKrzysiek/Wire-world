@@ -15,7 +15,7 @@ public class GameOfLifePerformanceTest {
     final static int DATA_SAMPLE_SIZE = 50;
 
     public static void main(String[] args) throws IOException {
-        var resultsFile = "Parallel_Future_One_For_Each_Thread_of_life_performance.txt";
+        var resultsFile = "Parallel_Thread_One_For_Each_Thread_of_life_performance.txt";
 
         var results = new ArrayList<Long>(DATA_SAMPLE_SIZE);
         for (int i = 0; i < DATA_SAMPLE_SIZE; i++) {
