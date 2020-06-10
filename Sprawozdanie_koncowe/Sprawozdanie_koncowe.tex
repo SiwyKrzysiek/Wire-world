@@ -68,11 +68,142 @@ Mechanizm modułów został wykorzystany głównie przy dołączaniu biblioteki 
 \subsection*{Strukrtóra kodu}
 Zmieniona została strukrtóra modułów projektu, tak by była zgodna z panującymi standardami w większości projektów. Dodatkowo zasoby takie jak pliki \texttt{.fxml} zostały przeniesione do katalogu \texttt{resources}, co ułatwiło ich ładowanie.
 
-\section{Opis zrównoleglenia}
-% TODO: Opis zrównoleglenia
+\section{Projekt zrównoleglenia}
+W celu zaprojektowania sposobu zrównoleglania programu zastosowana została metodyka PCAM. Poniżej przedstawione są wnioski wynikające z poszczególnych etapów.
+
+\subsection{Dekompozycja}
+Ponieważ do obliczenia stanów komórek kolejnego pokolenia wymagana jest informacja o ich stanie w aktualnym pokoleniu najlepiej jest zrównoleglić obliczanie stanów komórek nowego pokolenia.
+
+Stan każdej komórki może być obliczony niezależnie, więc ziarnistość rozwiązania kształtuje się na poziomie pojedynczej komórki automatu.
+
+Zastosowana została głównie dekompozycja domenowa.
+
+\subsection{Komunikacja}
+Komunikacja między wątkami nie jest wymagana. Każdy wątek może korzystać z pamięci współdzielonej w celu uzyskania informacji o stanie komórek z poprzedniego pokolenia.
+
+\subsection{Scalanie}
+Etap scalania został zrealizowany na różne sposoby w kolejnych wersjach projektu. Zmiana wersji scalania jest możliwa poprzez przejście na odpowiadającą gałąź systemu kontroli wersji \textit{git}.
+
+Zastosowane metody scalania to
+\begin{itemize}
+  \item jedno zadanie dla każdej komórki
+  \item stała wielkość komórek przypadających na poszczególne zadanie
+  \item stała liczba zadań równa liczbie procesorów
+\end{itemize}
+
+\subsubsection{Odwzorowanie}
+Odwzorowanie zadań na zasoby procesora jest realizowane automatycznie przez maszynę wirtualną Java. Pośrednio jest to kontrolowane przez tworzenie klas \texttt{Thread} lub wykorzystanie \texttt{ExecutorContext} z \textit{Concurrency API}.
+
+\section{Implementacja zrównoleglenia}
+Przy pisaniu projektu zostały zastosowane dwa API pozwalające na zrównoleglenie wykonania programu. Dzięki temu możliwe jest porównanie wydajności tych pojeść.
+
+\subsection{Thread}
+% TODO: Opisać zastosowanie Thread
+
+\subsection{Concurrency API}
+Drugim podejściem zastosowanym w projekcie było skorzystanie z rozwiniętego w Javie 8 \textit{Concurrency API}. Realizuje ono abstrakcję na bezpośrednie wątki. Zamiast tego tworzone są \texttt{Executory} oraz zdania typu \texttt{Callable}. Następnie zdania są przekazywane do egzekutorów, w wyniku czego powstają obiekty \texttt{Future}. Po zakończeniu wykonania zadań możliwe jest odczytanie wyniku z obiektu \texttt{Future}.
+
+W projekcie zastosowany został globalny \texttt{ExecutorService} typu \texttt{FixedThreadPool} z liczbą wątków równą liczbie dostępnych procesorów w systemie. Zaimplementowany na podstawie wzorca \textit{Singleton}.
+Przy symulacji następnego pokolenia w zależności od zastosowanego odwzorowania tworzona jest odpowiednia lista zadań. Następnie jest ona realizowana przez globalny egzekutor.
+
 
 \section{Analiza uzyskanych wyników}
-% TODO: Analiza uzyskanych wyników
+W celu zbadania wydajności różnych podejść został napisany test wydajnościowy. Przeprowadza on określoną liczbę symulacji 50 pokoleń dla planszy o wymiarach 1000 na 1000. Celowo wybrana została plansza o dużych rozmiarach.
 
+Wyniki uzyskanie w różnych podejściach zostały przeanalizowane przy pomocy narzędzi z bibliotek Pandas i Plotly do języka Python.
+
+\subsection{Podejście sekwencyjne}
+Zbadanie wydajności bez zrównoleglenia.
+
+\paragraph{Średni czas symulacji: } 1868.68 ms
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{Sequential_histogram}
+  \caption{Histogram czasów wykonania sekwencyjnego}
+\end{figure}
+
+\subsection{Concurrency API}
+Zbadanie wydajności programu przy zastosowaniu klas \texttt{Future} i \texttt{Executor}.
+
+\subsubsection{Future dla każdej komórki}
+\paragraph{Średni czas symulacji: } 19156.33 ms
+
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{Parallel_Future_for_each_cell_game_of_life_performance}
+  \caption{Histogram czasów wykonania przy obiekcie Future dla każdej komórki}
+\end{figure}
+
+\subsubsection{Stała wielkość 200 komórek na Future}
+\paragraph{Średni czas symulacji: } 653.89 ms
+
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{Parallel_Future_fix_chunk_200_game_of_life_performance}
+  \caption{Histogram czasów wykonania dla Future ze stałą wielkością 200 komórek}
+\end{figure}
+
+\subsubsection{Stała wielkość 500 komórek na Future}
+\paragraph{Średni czas symulacji: } 724.56 ms
+
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{Parallel_Future_fix_chunk_500_game_of_life_performance}
+  \caption{Histogram czasów wykonania dla Future ze stałą wielkością 500 komórek}
+\end{figure}
+
+\subsubsection{Liczba Future równa ilości rdzeni}
+\paragraph{Średni czas symulacji: } 1073.90 ms
+
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{Parallel_Future_One_For_Each_Thread_of_life_performance}
+  \caption{Histogram czasów wykonania dla jednego zadania Future na rdzeń}
+\end{figure}
+
+\subsection{Thread API}
+Zbadanie wydajności programu przy zastosowaniu klas \texttt{Runnable} i \texttt{Thread}.
+
+\subsubsection{Thread ze stałą wielkością komórek}
+Uruchomienie tylu wątków, żeby każdy miał wielkość zadania 200.
+\paragraph{Średni czas symulacji: } 14191.27 ms
+
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{Parallel_Thread_fix_chunk_200_game_of_life_performance}
+  \caption{'Histogram czasów wykonania dla Thread ze stałą wielkością 200 komórek'}
+\end{figure}
+
+\subsubsection{Liczba Thread równa ilości rdzeni}
+\paragraph{Średni czas symulacji: } 866.45 ms
+
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{Parallel_Thread_One_For_Each_Thread_of_life_performance}
+  \caption{Histogram czasów wykonania dla jednego zadania Thread na rdzeń}
+\end{figure}
+
+\subsection{Porównanie wyników}
+Zestawienie średnich czasów obliczeń uzyskanych dla różnych podejść.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{Result_comparasion}
+  \caption{Porównanie średnich czasów obliczeń}
+\end{figure}
+
+
+\section{Wnioski}
+
+
+
+Zastosowanie testów jednostkowych w projekcie znacznie ułatwiła wprowadzane zmian w kodzie. Dzięki ich obecności wykrycie błędów oraz sprawdzenie czy symulacja jest wykonywana poprawnie było szybkie. Pozwoliło to na swobodne testowanie różnych rozwiązań.
 
 \end{document}
