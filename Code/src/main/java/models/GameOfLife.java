@@ -56,14 +56,13 @@ public class GameOfLife extends CellularAutomaton<GameOfLife.CellStates> {
         @Override
         public CellStates call() throws Exception {
             int aliveNeighbours = countAliveNeighbours(x, y);
-            final int index = y*width + x;
+            final int index = y * width + x;
             CellStates cell = cells[index];
 
             CellStates newState = getDefaultState();
             if (cell == CellStates.DEAD) {
                 newState = aliveNeighbours == 3 ? CellStates.ALIVE : CellStates.DEAD;
-            }
-            else if (cell == CellStates.ALIVE) {
+            } else if (cell == CellStates.ALIVE) {
                 Set<Integer> stillAlive = new HashSet<>(Arrays.asList(2, 3));
                 newState = stillAlive.contains(aliveNeighbours) ? CellStates.ALIVE : CellStates.DEAD;
             }
@@ -72,41 +71,59 @@ public class GameOfLife extends CellularAutomaton<GameOfLife.CellStates> {
         }
     }
 
-    @Override
-    protected CellStates[] generateNextGeneration() {
-        var tasks = new ArrayList<NexStateCallable>(getCellCount());
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                tasks.add(new NexStateCallable(j, i));
-            }
+    private class NextStateOfCellRangeRunnable implements Callable<CellStates[]> {
+        private final int from;
+        private final int to;
+        private final CellStates[] newGeneration;
+
+        public NextStateOfCellRangeRunnable(int from, int to, CellStates[] newGeneration) {
+            this.from = from;
+            this.to = to;
+            this.newGeneration = newGeneration;
         }
 
-        List<Future<CellStates>> futures;
-        try {
-            var executor = MyThreadPool.getExecutor();
-            futures = executor.invokeAll(tasks);
+        @Override
+        public CellStates[] call() throws Exception {
+            for (int inex = from; inex < to; inex++) {
+                int x = inex % width;
+                int y = inex / width;
+                int aliveNeighbours = countAliveNeighbours(x, y);
+                CellStates cell = cells[inex];
 
-            var nextGeneration = new CellStates[getCellCount()];
-            for (int i = 0; i < getCellCount(); i++) {
-                var future = futures.get(i);
-                nextGeneration[i] = future.get();
+                CellStates newState = getDefaultState();
+                if (cell == CellStates.DEAD) {
+                    newState = aliveNeighbours == 3 ? CellStates.ALIVE : CellStates.DEAD;
+                } else if (cell == CellStates.ALIVE) {
+                    newState = aliveNeighbours == 2 || aliveNeighbours == 3 ? CellStates.ALIVE : CellStates.DEAD;
+                }
+
+                newGeneration[inex] = newState;
             }
 
-            return nextGeneration;
-        } catch (InterruptedException | ExecutionException  e) {
+            return newGeneration;
+        }
+    }
+
+    @Override
+    protected CellStates[] generateNextGeneration() {
+        var newGeneration = new CellStates[getCellCount()];
+
+        var tasks = new ArrayList<NextStateOfCellRangeRunnable>();
+        var chunkSize = 500;
+        for (int i = 0; i < getCellCount(); i+=chunkSize) {
+            int to = i + chunkSize <= getCellCount() ? i + chunkSize : getCellCount();
+            tasks.add(new NextStateOfCellRangeRunnable(i, to, newGeneration));
+        }
+
+        try {
+            var executor = MyThreadPool.getExecutor();
+            executor.invokeAll(tasks);
+
+            return newGeneration;
+        } catch (InterruptedException e) {
             System.out.println("Calculations failed");
             return cells;
         }
-
-//        var nextGeneration = futures.stream().map(f -> {
-//            try {
-//                return f.get();
-//            } catch (Exception e) {
-//                throw new IllegalStateException();
-//            }
-//        }).toArray(CellStates[]::new);
-//
-//        return nextGeneration;
     }
 
     @Override
@@ -137,6 +154,7 @@ public class GameOfLife extends CellularAutomaton<GameOfLife.CellStates> {
 
     /**
      * Calculates how many alive cells are around given cell
+     *
      * @param cellX
      * @param cellY
      * @return number of alive neighbours
@@ -155,7 +173,7 @@ public class GameOfLife extends CellularAutomaton<GameOfLife.CellStates> {
                 if (neighbourX < 0 || neighbourX >= width || neighbourY < 0 || neighbourY >= height)
                     continue; //Cells out of board are DEAD
 
-                final int index = neighbourY*width + neighbourX;
+                final int index = neighbourY * width + neighbourX;
                 if (cells[index] == CellStates.ALIVE)
                     count++;
             }
@@ -166,6 +184,7 @@ public class GameOfLife extends CellularAutomaton<GameOfLife.CellStates> {
 
     /**
      * For each cell calculates how many alive neighbours it has
+     *
      * @return Array that in each fields contains count of neighbours of corresponding cell
      */
     private int[] countAliveNeighbours() {
@@ -173,7 +192,7 @@ public class GameOfLife extends CellularAutomaton<GameOfLife.CellStates> {
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                final int cellIndex = i*width + j;
+                final int cellIndex = i * width + j;
 
                 result[cellIndex] = countAliveNeighbours(j, i);
             }
