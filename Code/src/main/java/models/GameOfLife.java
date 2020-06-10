@@ -139,18 +139,17 @@ public class GameOfLife extends CellularAutomaton<GameOfLife.CellStates> {
     protected CellStates[] generateNextGeneration() {
         var newGeneration = new CellStates[getCellCount()];
 
-        var threads = new ArrayList<Thread>();
+        var tasks = new ArrayList<NextStateOfCellRangeCallable>();
         var chunkSize = 200;
         for (int i = 0; i < getCellCount(); i+=chunkSize) {
             int to = i + chunkSize <= getCellCount() ? i + chunkSize : getCellCount();
-            var thread = new Thread( new NextStateOfCellRangeRunnable(i, to, newGeneration));
-            thread.start();
-            threads.add(thread);
+            tasks.add(new NextStateOfCellRangeCallable(i, to, newGeneration));
         }
 
         try {
-            for (var thread: threads)
-                thread.join();
+            var executor = MyThreadPool.getExecutor();
+            executor.invokeAll(tasks);
+
             return newGeneration;
         } catch (InterruptedException e) {
             System.out.println("Calculations failed");
