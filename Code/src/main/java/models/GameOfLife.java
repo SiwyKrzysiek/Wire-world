@@ -108,11 +108,21 @@ public class GameOfLife extends CellularAutomaton<GameOfLife.CellStates> {
     protected CellStates[] generateNextGeneration() {
         var newGeneration = new CellStates[getCellCount()];
 
-        var tasks = new ArrayList<NextStateOfCellRangeRunnable>();
-        var chunkSize = 500;
-        for (int i = 0; i < getCellCount(); i+=chunkSize) {
-            int to = i + chunkSize <= getCellCount() ? i + chunkSize : getCellCount();
-            tasks.add(new NextStateOfCellRangeRunnable(i, to, newGeneration));
+        var cpuThreads = Runtime.getRuntime().availableProcessors();
+        int chunkSize = getCellCount() / cpuThreads;
+        var chunkSizes = new int[cpuThreads];
+        Arrays.fill(chunkSizes, chunkSize);
+        var rest = getCellCount() % cpuThreads;
+        for (int i = 0; i < rest; i++) {
+            chunkSizes[i]++;
+        }
+
+        var tasks = new ArrayList<NextStateOfCellRangeRunnable>(cpuThreads);
+        for (int i = 0, from = 0; i < cpuThreads; i++) {
+            int to = from + chunkSizes[i];
+            tasks.add(new NextStateOfCellRangeRunnable(from, to, newGeneration));
+
+            from = to;
         }
 
         try {
