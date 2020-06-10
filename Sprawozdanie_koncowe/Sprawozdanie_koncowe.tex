@@ -98,7 +98,7 @@ Odwzorowanie zadań na zasoby procesora jest realizowane automatycznie przez mas
 Przy pisaniu projektu zostały zastosowane dwa API pozwalające na zrównoleglenie wykonania programu. Dzięki temu możliwe jest porównanie wydajności tych pojeść.
 
 \subsection{Thread}
-% TODO: Opisać zastosowanie Thread
+Pierwszym podejściem jest zastosowanie klas \texttt{Runnable} a następnie utworzenie na ich podstawie wątków \texttt{Thread}. Każdy wątek po utworzeniu zostanie utworzony. Następnie zostaną one dołączone do wątku głównego przy pomocy metody \texttt{join()}.
 
 \subsection{Concurrency API}
 Drugim podejściem zastosowanym w projekcie było skorzystanie z rozwiniętego w Javie 8 \textit{Concurrency API}. Realizuje ono abstrakcję na bezpośrednie wątki. Zamiast tego tworzone są \texttt{Executory} oraz zdania typu \texttt{Callable}. Następnie zdania są przekazywane do egzekutorów, w wyniku czego powstają obiekty \texttt{Future}. Po zakończeniu wykonania zadań możliwe jest odczytanie wyniku z obiektu \texttt{Future}.
@@ -208,7 +208,7 @@ Równie słaby wynik dało podejście z zastosowaniem wątków o stałej wielko�
 
 Podejście z ilością obiektów \texttt{Future} równą liczbie rdzeni wypadło trochę gorzej niż dla liczby wątków równej liczbie rdzeni. Świadczy to o narzutach płynących z abstrakcji stosowanych w \textit{Concurrency API}.
 
-Najlepszym rozwiązaniem okazało się zastosowanie obiektów \texttt{Future} ze stałą wielkością zadania. W przeciwieństwie do analogicznego schematu z wątkami dla \texttt{Future} nie powstała nadmiarowa liczba wątków procesora. Takie podejście prawdopodobnie pozwoliło zniwelować opóznienie płynące z różnego tępa pracy poszczególnych rdzenie dzięki rozłożeniu pracy metodą przypominającą technikę \textit{load balancing}.
+Najlepszym rozwiązaniem okazało się zastosowanie obiektów \texttt{Future} ze stałą wielkością zadania. W przeciwieństwie do analogicznego schematu z wątkami dla \texttt{Future} nie powstała nadmiarowa liczba wątków procesora. Takie podejście prawdopodobnie pozwoliło zniwelować opóznienie płynące z różnego tempa pracy poszczególnych rdzenie dzięki rozłożeniu pracy metodą przypominającą technikę \textit{load balancing}.
 
 \vspace{5mm}
 
