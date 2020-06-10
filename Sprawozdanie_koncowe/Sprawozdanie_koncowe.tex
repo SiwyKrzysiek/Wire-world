@@ -43,6 +43,8 @@
 
 \tableofcontents{}
 
+\pagebreak{}
+
 \section{Opis projektu}
 W ramach projektu został zmodyfikowany symulator automatów komórkowych \textit{Wireworld} i \textit{Gra w życie} napisany oryginalnie w ramach przedmiotu \texttt{JIMP2}. Przyjęta forma zadania pozwoliła na rozwój umiejętności związanych z utrzymaniem kodu. Rozbudowa projektu o zrównoleglenie obliczeń dobrze wpisuję się w typowe zastosowanie programowania równoległego, które często nie zmienia funkcjonalności programu, lecz pozwala przyśpieszyć zastosowane rozwiązania lub pośrednio umożliwić przetwarzanie większych zbiorów danych.
 
@@ -103,7 +105,7 @@ Pierwszym podejściem jest zastosowanie klas \texttt{Runnable} a następnie utwo
 \subsection{Concurrency API}
 Drugim podejściem zastosowanym w projekcie było skorzystanie z rozwiniętego w Javie 8 \textit{Concurrency API}. Realizuje ono abstrakcję na bezpośrednie wątki. Zamiast tego tworzone są \texttt{Executory} oraz zdania typu \texttt{Callable}. Następnie zdania są przekazywane do egzekutorów, w wyniku czego powstają obiekty \texttt{Future}. Po zakończeniu wykonania zadań możliwe jest odczytanie wyniku z obiektu \texttt{Future}.
 
-W projekcie zastosowany został globalny \texttt{ExecutorService} typu \texttt{FixedThreadPool} z liczbą wątków równą liczbie dostępnych procesorów w systemie. Zaimplementowany na podstawie wzorca \textit{Singleton}.
+W projekcie zastosowany został globalny \texttt{ExecutorService} typu \\ \texttt{FixedThreadPool} z liczbą wątków równą liczbie dostępnych procesorów w systemie. Zaimplementowany na podstawie wzorca \textit{Singleton}.
 Przy symulacji następnego pokolenia w zależności od zastosowanego odwzorowania tworzona jest odpowiednia lista zadań. Następnie jest ona realizowana przez globalny egzekutor.
 
 
