@@ -1,0 +1,78 @@
+\documentclass{mwart}
+\usepackage{multicol}
+\usepackage{polski} % Pozwala na użycie polskiego. Ustawia między innymi fontenc na T1
+\usepackage[utf8]{inputenc} % Informuje o kodowaniu
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{xcolor}% http://ctan.org/pkg/xcolor
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{float} % Ustawianie obrazów
+\usepackage[caption = false]{subfig} % Wiele obrazów w jednej figurze
+\definecolor{LinkColor}{HTML}{1d5cc1}
+\renewcommand{\labelitemi}{\textbullet} % Zmiana symbolu wliczeń
+
+\lstset{
+  basicstyle=\ttfamily,
+  columns=fullflexible,
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
+
+\definecolor{LinkColor}{HTML}{1d5cc1}
+
+\usepackage{tabto}
+
+\usepackage{graphicx} % Pakiet do obrazów
+\graphicspath{ {./Obrazy/} } % Folder, z którego będą brane obrazy
+
+% Nie twórz nowych stron
+\usepackage{etoolbox}
+\makeatletter
+% \patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
+\makeatother
+
+\newcommand{\paragraphnl}[1]{\paragraph{#1} \mbox{} \\} % Paragraf z nową linią
+
+\title{PRIR Sprawozdanie końcowe -- Gra w życie}
+\author{Krzysztof Dąbrowski 293101}
+\date{\today}
+
+\begin{document}
+\maketitle{}
+
+\tableofcontents{}
+
+\section{Opis projektu}
+W ramach projektu został zmodyfikowany symulator automatów komórkowych \textit{Wireworld} i \textit{Gra w życie} napisany oryginalnie w ramach przedmiotu \texttt{JIMP2}. Przyjęta forma zadania pozwoliła na rozwój umiejętności związanych z utrzymaniem kodu. Rozbudowa projektu o zrównoleglenie obliczeń dobrze wpisuję się w typowe zastosowanie programowania równoległego, które często nie zmienia funkcjonalności programu, lecz pozwala przyśpieszyć zastosowane rozwiązania lub pośrednio umożliwić przetwarzanie większych zbiorów danych.
+
+\section{Opis uruchomienia}
+W celu łatwego uruchomienia i konfiguracji projektu zastosowany został system automatyzacji budowy projektu \textit{Gradle}. Został on skonfigurowany w ten sposób, że aplikację można łatwo uruchomić poniższym poleceniem. Przykład zakłada, że lokalizacja terminala jest ustawiona na katalog \textbf{zawierający projekt}.
+
+\begin{lstlisting}[language=bash]
+./gradlew run 
+\end{lstlisting}
+
+Dzięki zastosowaniu \textit{Gradle wrapper} nie jest wymagana instalacja narzędzia \textit{Gradle}.
+
+\section{Modernizacja kodu}
+Oryginalny kod był jednym z pierwszy moich projektów w języku Java. W celu uproszczenia rozwoju projektu oraz późniejszego korzystania z niego została przeprowadzona modernizacja zastosowanych technologii.
+
+\subsection*{Biblioteki}
+Początkowo projekt nie korzystał z narzędzia do budowy kodu a biblioteki były manualnie dołączane do ścieżki kompilatora. Podejście to zmienione na zastosowanie narzędzia \textit{Gradle}, które umożliwia automatyzację dołączania bibliotek oraz budowy aplikacji. Użyte biblioteki zostały również aktualizowane do nowych wersji.
+
+\subsection*{Java 11}
+Poziom języka został podniesiony z wersji 8 do 11. Umożliwiło to zastosowanie nowych funkcjonalności takich jak słowo kluczowe \texttt{var} oraz zastosowanie mechanizmu modułów.
+Mechanizm modułów został wykorzystany głównie przy dołączaniu biblioteki \textit{Java FX}.
+
+\subsection*{Strukrtóra kodu}
+Zmieniona została strukrtóra modułów projektu, tak by była zgodna z panującymi standardami w większości projektów. Dodatkowo zasoby takie jak pliki \texttt{.fxml} zostały przeniesione do katalogu \texttt{resources}, co ułatwiło ich ładowanie.
+
+\section{Opis zrównoleglenia}
+% TODO: Opis zrównoleglenia
+
+\section{Analiza uzyskanych wyników}
+% TODO: Analiza uzyskanych wyników
+
+
+\end{document}
