@@ -13,6 +13,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
+import models.MyThreadPool;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -153,5 +154,10 @@ public class SetupController extends Application implements Initializable {
         primaryStage.setScene(new Scene(root, 1350, 650));
         primaryStage.setResizable(false);
         primaryStage.show();
+    }
+
+    @Override
+    public void stop() {
+        MyThreadPool.shutdownNow();
     }
 }

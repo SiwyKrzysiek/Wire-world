@@ -1,6 +1,7 @@
 package performance;
 
 import models.GameOfLife;
+import models.MyThreadPool;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -11,14 +12,15 @@ public class GameOfLifePerformanceTest {
     final static int WIDTH = 1000;
     final static int HEIGHT = 1000;
     final static int GENERATIONS = 50;
-    final static int DATA_SAMPLE_SIZE = 200;
+    final static int DATA_SAMPLE_SIZE = 50;
 
     public static void main(String[] args) throws IOException {
-        var resultsFile = "Sequential_game_of_life_performance.txt";
+        var resultsFile = "Parallel_Future_for_each_cell_game_of_life_performance.txt";
 
         var results = new ArrayList<Long>(DATA_SAMPLE_SIZE);
         for (int i = 0; i < DATA_SAMPLE_SIZE; i++) {
             results.add(simulateManyGenerationsForRandomBoard());
+            System.out.println(i);
         }
 
         try (var writer = new BufferedWriter(new FileWriter(resultsFile))) {
@@ -30,6 +32,8 @@ public class GameOfLifePerformanceTest {
                 writer.write(result.toString() + "\n");
             }
         }
+
+        MyThreadPool.shutdown();
     }
 
     public static long simulateManyGenerationsForRandomBoard() {
